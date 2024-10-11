@@ -1,0 +1,48 @@
+---
+title: "Coding_Exercises"
+author: "Alan Cai"
+date: "2024-10-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source('setup.R')
+```
+
+```{r}
+data("knz_bison")
+```
+
+```{r}
+#1.  Create a new column in the bison dataset that calculates the individual's age at the time of observation.
+
+knz_bison$AgeDuringObservation = knz_bison$rec_year - knz_bison$animal_yob
+
+#2.  Write a function that will first filter the bison dataset based on any user-specified weight threshold (returning the filtered dataset).
+
+filterByWeight <- function(dataset, threshold) {
+  
+  dataset %>% filter(animal_weight > threshold)
+}
+
+#3.  Create a boxplot showing weight distribution between male and female bison, and then conduct a t-test to see if weight is significantly difference between males and females.
+
+ggplot(knz_bison, aes(x=animal_sex, y=animal_weight)) + 
+  geom_boxplot()
+
+knz_bison %>% 
+  levene_test(animal_weight ~ animal_sex)
+
+#due to the significant p-value from the levene test, I will use the non-parametric Welch t-test which doesn't assume equal variances.
+
+results <- knz_bison %>% 
+  t_test(animal_weight ~ animal_sex, var.equal = FALSE, detailed = TRUE) 
+
+results
+#Based on the p value of 6.95 e-5 for this t-test, there IS a significant difference in weight between males and females for these bison.
+```
+
